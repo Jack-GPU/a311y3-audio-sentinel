@@ -1,0 +1,69 @@
+# 采集与前端参数。PC 参考实现、板端 C 实现、模型训练三方共用这一份。
+# 改动这里必须重跑 python/mel_parity.py，否则特征漂移不会被发现。
+
+audio:
+  sr: 16000
+  channels: 1
+  sample_width: 2        # int16 PCM
+  alsa:
+    device: "hw:0,0"
+    # 小 period 降采集延迟；buffer 留 3 个 period 抗抖动
+    period_size: 320     # 20 ms @16k
+    buffer_size: 960
+    periods: 3
+
+frontend:
+  n_fft: 512
+  win_length: 400        # 25 ms
+  hop_length: 160        # 10 ms
+  n_mels: 40
+  fmin: 20.0
+  fmax: 7600.0
+  preemph: 0.97
+  window: hann_periodic  # 注意：不是 hann_symmetric，差一个采样点
+  center: true
+  pad_mode: reflect
+  mel_norm: slaney       # 不是 htk，面积归一
+  log_mult: 10.0         # 10*log10(power)，不是 20
+  top_db: 80.0
+  eps: 1.0e-10
+  feature_norm: db_over_top_db   # → 约 [-1, 0]
+
+# 分级唤醒的三级阈值。duty 是设计目标，实测填进 bench。
+gate:
+  l0:
+    dbfs_threshold: -55.0      # 域 0：能量门控
+    target_duty: 0.02
+  l1:
+    score_threshold: 0.20      # 域 1：候选生成（KWS / 小分类器）
+    target_duty: 0.10
+  l2:
+    score_threshold: 0.35      # 域 2：NPU 确认
+    target_duty: 0.05
+
+stream:
+  window_ms: 1000
+  hop_ms: 160
+  # 流式状态复用：维护跨 chunk 的 conv/pooling cache
+  stateful: true
+  queue_depth: 1             # 有界队列，过载丢旧保新
+  drop_policy: keep_latest
+
+npu:
+  target_platform: "007"     # A311Y3 / ADLA3
+  quantized_dtype: w8a8
+  num_threads: 1
+  # 多任务 QoS：优先级 + deadline + 微批合并
+  qos:
+    enabled: true
+    priorities:
+      glass_break: 0
+      smoke_alarm: 0
+      baby_cry: 1
+      dog_bark: 2
+    deadline_ms:
+      glass_break: 300
+      smoke_alarm: 300
+      baby_cry: 500
+      dog_bark: 800
+    batch_window_ms: 20

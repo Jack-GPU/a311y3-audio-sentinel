@@ -1,0 +1,70 @@
+# 事件白名单与代价模型。
+#
+# 关键设计：阈值不是"调"出来的，是按漏检/误报的代价配出来的。
+#   漏检代价高 → 低阈值 + 少连击（宁可误报）
+#   误报代价高 → 高阈值 + 长冷却（宁可漏报）
+# 所以每类事件都必须带 cost_class，评测时按类分栏报，不能合成一个 F1。
+
+events:
+  glass_break:
+    label_cn: 玻璃破碎
+    cost_class: miss_sensitive
+    threshold: 0.35
+    min_consecutive: 2
+    cooldown_frames: 15        # 10 ms hop → 150 ms
+    rationale: 破碎是瞬态事件，错过一次即事故；容忍一定误报。
+
+  smoke_alarm:
+    label_cn: 烟雾报警
+    cost_class: miss_sensitive
+    threshold: 0.40
+    min_consecutive: 2
+    cooldown_frames: 15
+    rationale: 长鸣类事件能量稳定，2 连击足够；同样是漏检敏感。
+
+  baby_cry:
+    label_cn: 婴儿哭声
+    cost_class: neutral
+    threshold: 0.55
+    min_consecutive: 3
+    cooldown_frames: 30
+    rationale: 哭声持续较久，可稍高阈值换稳定；误报成本中等。
+
+  dog_bark:
+    label_cn: 犬吠
+    cost_class: fa_sensitive
+    threshold: 0.75
+    min_consecutive: 4
+    cooldown_frames: 90        # 900 ms 冷却，抑制连续犬吠刷屏
+    rationale: 邻里场景下犬吠误报最容易招投诉；必须高阈值 + 长冷却。
+
+hard_negatives:
+  # 这些不是"其他类"，而是专门用来压误报的对手
+  speech:
+    label_cn: 人声朗读
+    weight: 1.0
+  tv:
+    label_cn: 电视综艺
+    weight: 1.0
+  music:
+    label_cn: 背景音乐
+    weight: 0.8
+  appliance:
+    label_cn: 家电（洗衣机/油烟机/电钻）
+    weight: 1.0
+
+open_set:
+  # 未知类拒识：没见过的声音不该告警
+  enabled: true
+  method: energy_score        # energy_score | max_logit | mahalanobis
+  threshold: -6.5
+  target_fpr_at_95tpr: 0.10
+
+reporting:
+  # 汇总时按代价分栏，禁止合并成单一指标
+  split_by_cost_class: true
+  metrics:
+    - miss_rate
+    - false_alarm_per_hour
+    - npu_duty
+    - p99_confirm_ms

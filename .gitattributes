@@ -1,0 +1,26 @@
+# 板端是 Linux，shell / C / Python 必须是 LF。
+# 不锁这个，Windows 上 clone 出来带 CRLF，跑到板端第一行就报
+# "bad interpreter: /bin/bash^M"。
+* text=auto eol=lf
+
+*.sh   text eol=lf
+*.c    text eol=lf
+*.h    text eol=lf
+*.cpp  text eol=lf
+*.py   text eol=lf
+*.md   text eol=lf
+*.yaml text eol=lf
+*.yml  text eol=lf
+*.json text eol=lf
+*.txt  text eol=lf
+*.cmake text eol=lf
+CMakeLists.txt text eol=lf
+
+*.wav  binary
+*.pcm  binary
+*.onnx binary
+*.adla binary
+
+# 可直接执行的脚本
+scripts/*.sh  text eol=lf
+cpp/build.sh  text eol=lf

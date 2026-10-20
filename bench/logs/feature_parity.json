@@ -1,0 +1,194 @@
+{
+  "meta": {
+    "config": {
+      "sr": 16000,
+      "n_fft": 512,
+      "win_length": 400,
+      "hop_length": 160,
+      "n_mels": 40,
+      "fmin": 20.0,
+      "fmax": 7600.0,
+      "preemph": 0.97,
+      "window": "hann_periodic",
+      "pad_mode": "reflect",
+      "center": true,
+      "mel_norm": "slaney",
+      "log_mult": 10.0,
+      "top_db": 80.0,
+      "eps": 1e-10,
+      "feature_norm": "db_over_top_db"
+    },
+    "pass_threshold": {
+      "max_abs": 0.001,
+      "rmse": 0.0005
+    },
+    "cases": {
+      "steady_tones": {
+        "frames": 301
+      },
+      "chirp": {
+        "frames": 301
+      },
+      "impulse_train": {
+        "frames": 301
+      },
+      "low_snr": {
+        "frames": 301
+      },
+      "silence_then_onset": {
+        "frames": 301
+      }
+    },
+    "note": "max_abs/rmse 均在特征归一化域（约 [-1,0]）。single 为单项独立开启；repair_path 为从全偏差状态贪心修复的排障顺序。"
+  },
+  "full_mismatch": {
+    "max_abs": 1.0,
+    "rmse": 0.7875106380901286
+  },
+  "single_deviation": [
+    {
+      "deviation": "top_db_missing",
+      "max_abs": 0.999999919629488,
+      "rmse": 0.787510571638854,
+      "p99_abs": 0.9999999189506852,
+      "worst_case": "steady_tones"
+    },
+    {
+      "deviation": "mel_htk_norm",
+      "max_abs": 0.7318859696388245,
+      "rmse": 0.33055654444434407,
+      "p99_abs": 0.5837620329856879,
+      "worst_case": "chirp"
+    },
+    {
+      "deviation": "log_20",
+      "max_abs": 0.49992311000823975,
+      "rmse": 0.31994530610302396,
+      "p99_abs": 0.49579846739768996,
+      "worst_case": "low_snr"
+    },
+    {
+      "deviation": "preemph_skip",
+      "max_abs": 0.3655569553375244,
+      "rmse": 0.12224838572156045,
+      "p99_abs": 0.33029000714421286,
+      "worst_case": "low_snr"
+    },
+    {
+      "deviation": "pad_zero",
+      "max_abs": 0.26442259550094604,
+      "rmse": 0.008663395509215703,
+      "p99_abs": 0.0,
+      "worst_case": "steady_tones"
+    },
+    {
+      "deviation": "filterbank_q15",
+      "max_abs": 0.015629678964614868,
+      "rmse": 0.00044500868643256004,
+      "p99_abs": 0.0008188030123710654,
+      "worst_case": "silence_then_onset"
+    },
+    {
+      "deviation": "window_symmetric",
+      "max_abs": 0.007928252220153809,
+      "rmse": 0.001240368229700023,
+      "p99_abs": 0.004577517509460449,
+      "worst_case": "steady_tones"
+    },
+    {
+      "deviation": "feature_int8",
+      "max_abs": 0.00393696129322052,
+      "rmse": 0.0022736808861626417,
+      "p99_abs": 0.0038963520526885988,
+      "worst_case": "low_snr"
+    },
+    {
+      "deviation": "log_lut",
+      "max_abs": 0.003124833106994629,
+      "rmse": 0.0018036942345619896,
+      "p99_abs": 0.003090707361698151,
+      "worst_case": "low_snr"
+    }
+  ],
+  "repair_path": [
+    {
+      "step": 0,
+      "removed": null,
+      "max_abs": 1.0,
+      "rmse": 0.7875106380901286,
+      "worst_case": "steady_tones",
+      "note": "full mismatch：两端实现全部不一致"
+    },
+    {
+      "step": 1,
+      "removed": "top_db_missing",
+      "max_abs": 0.8180680871009827,
+      "rmse": 0.3991495067226062,
+      "worst_case": "steady_tones"
+    },
+    {
+      "step": 2,
+      "removed": "mel_htk_norm",
+      "max_abs": 0.6732689738273621,
+      "rmse": 0.16004658161129176,
+      "worst_case": "steady_tones"
+    },
+    {
+      "step": 3,
+      "removed": "log_20",
+      "max_abs": 0.36278462409973145,
+      "rmse": 0.12205309572870425,
+      "worst_case": "low_snr"
+    },
+    {
+      "step": 4,
+      "removed": "preemph_skip",
+      "max_abs": 0.267898291349411,
+      "rmse": 0.009156631361797255,
+      "worst_case": "steady_tones"
+    },
+    {
+      "step": 5,
+      "removed": "pad_zero",
+      "max_abs": 0.014217525720596313,
+      "rmse": 0.002149716928709423,
+      "worst_case": "chirp"
+    },
+    {
+      "step": 6,
+      "removed": "filterbank_q15",
+      "max_abs": 0.01348644495010376,
+      "rmse": 0.0027208367929082355,
+      "worst_case": "steady_tones"
+    },
+    {
+      "step": 7,
+      "removed": "log_lut",
+      "max_abs": 0.006804466247558594,
+      "rmse": 0.002003355534590686,
+      "worst_case": "chirp"
+    },
+    {
+      "step": 8,
+      "removed": "window_symmetric",
+      "max_abs": 0.00393696129322052,
+      "rmse": 0.0022736808861626417,
+      "worst_case": "low_snr"
+    },
+    {
+      "step": 9,
+      "removed": "feature_int8",
+      "max_abs": 0.0,
+      "rmse": 0.0,
+      "worst_case": null
+    }
+  ],
+  "residual_after_repair": {
+    "max_abs": 0.0,
+    "rmse": 0.0
+  },
+  "items_to_90pct": 5,
+  "items_to_99pct": 7,
+  "pass": true,
+  "decision": "两端实现完全不一致时特征偏差 1.000；按归因修复 5 项即可消掉 90% 偏差（top_db_missing, mel_htk_norm, log_20 等），全量对齐后残余 0.00e+00，满足 1e-03 阈值。结论：前端差异可完全归因，掉点来自实现而非量化精度。"
+}

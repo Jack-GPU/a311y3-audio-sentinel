@@ -1,0 +1,9 @@
+# 运行核心工具只需要 numpy
+numpy>=1.24
+
+# 以下按需安装，不装也能跑前端一致性工具与状态机
+# torch>=2.0          # 训练 / 蒸馏
+# onnx>=1.15          # 导出与算子探测
+# soundfile           # 读真实录音
+# smbus2              # INA226 功耗采样
+# amlnn-toolkit       # 由晶晨提供，不走 pip

@@ -1,0 +1,62 @@
+# 模型与蒸馏配置。
+#
+# 选型顺序是「先探算子、再定结构」，反过来一定返工：
+# ADLA3 对 GRU/LSTM 支持弱（见 bench/logs/operator_probe.json），
+# 所以主干锁定纯 CNN，时序信息靠感受野而不是循环结构。
+
+model:
+  name: bcresnet_s
+  family: bc-resnet             # 纯 CNN，depthwise separable
+  input:
+    n_mels: 40
+    frames: 100                 # 1 s @ hop 10 ms
+  num_classes: 5                # 4 事件 + other
+  # 6 个候选：宽度 3 档 × 深度 2 档，用于帕累托选型
+  candidates:
+    - {name: bcresnet_xs, width: 8,  depth: 4, params_m: 0.22}
+    - {name: bcresnet_xs_d6, width: 8,  depth: 6, params_m: 0.30}
+    - {name: bcresnet_s, width: 12, depth: 4, params_m: 0.40}
+    - {name: bcresnet_s_d6, width: 12, depth: 6, params_m: 0.55}
+    - {name: bcresnet_m, width: 16, depth: 4, params_m: 0.62}
+    - {name: bcresnet_m_d6, width: 16, depth: 6, params_m: 0.85}
+  selected: bcresnet_s           # 由 pareto.json 的选点决定，此处为初值
+
+distill:
+  teacher: panns_cnn14          # 80M 参数，PC 侧推理，不进板
+  temperature: 4.0
+  alpha_logit: 0.7              # logit KD 权重
+  alpha_feature: 0.3            # 中间层特征 KD 权重
+  feature_layer: "conv_block_3" # teacher 侧对齐点
+  epochs: 60
+  batch_size: 64
+  lr: 0.003
+  scheduler: cosine
+
+training:
+  loss: bce                     # 多标签，允许多事件重叠
+  augment:
+    - {name: gain,              range_db: [-12, 6]}
+    - {name: add_noise,         snr_db: [0, 20]}
+    - {name: time_shift,        max_ms: 200}
+    - {name: spec_augment,      freq_mask: 8, time_mask: 12}
+    - {name: rir_convolve,      prob: 0.3}   # 房间冲激响应，抗混响
+  val_split: 0.2
+  seed: 20261020
+
+quantization:
+  dtype: w8a8
+  calibration:
+    # 校准集必须覆盖负类，否则激活范围被正类主导
+    n_samples: 300
+    include_hard_negatives: true
+    per_channel: true
+  # 前端必须与 python/audio_frontend.py 完全一致，否则量化白做
+  frontend_locked: true
+
+pareto:
+  # 选点准则：不是"精度最高"，是"满足 P99 与占空比约束下精度最高"
+  constraints:
+    p99_confirm_ms: 60
+    npu_duty: 0.10
+  objective: mAP
+  output: bench/logs/pareto.json

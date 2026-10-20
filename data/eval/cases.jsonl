@@ -1,0 +1,10 @@
+{"case_id": "glass_break_clean", "wav": "data/wav/glass_break_clean.wav", "dur_s": 0.8, "expect_event": "glass_break", "expect_alarm": true, "event_id": "glass_break", "cost_class": "miss_sensitive", "tag": "positive_clean"}
+{"case_id": "glass_break_lowsnr", "wav": "data/wav/glass_break_lowsnr.wav", "dur_s": 1.0, "expect_event": "glass_break", "expect_alarm": true, "event_id": "glass_break", "cost_class": "miss_sensitive", "tag": "positive_noisy"}
+{"case_id": "glass_break_short", "wav": "data/wav/glass_break_short.wav", "dur_s": 0.35, "expect_event": "glass_break", "expect_alarm": true, "event_id": "glass_break", "cost_class": "miss_sensitive", "tag": "positive_short"}
+{"case_id": "dog_bark_clean", "wav": "data/wav/dog_bark_clean.wav", "dur_s": 2.0, "expect_event": "dog_bark", "expect_alarm": true, "event_id": "dog_bark", "cost_class": "fa_sensitive", "tag": "positive_clean"}
+{"case_id": "dog_bark_repeat30s", "wav": "data/wav/dog_bark_repeat30s.wav", "dur_s": 30.0, "expect_event": "dog_bark", "expect_alarm": true, "event_id": "dog_bark", "cost_class": "fa_sensitive", "tag": "burst_repeat"}
+{"case_id": "baby_cry_clean", "wav": "data/wav/baby_cry_clean.wav", "dur_s": 2.0, "expect_event": "baby_cry", "expect_alarm": true, "event_id": "baby_cry", "cost_class": "neutral", "tag": "positive_clean"}
+{"case_id": "neg_speech", "wav": "data/wav/neg_speech.wav", "dur_s": 3.0, "expect_event": null, "expect_alarm": false, "event_id": null, "cost_class": "neutral", "tag": "negative_speech"}
+{"case_id": "neg_music", "wav": "data/wav/neg_music.wav", "dur_s": 3.0, "expect_event": null, "expect_alarm": false, "event_id": null, "cost_class": "neutral", "tag": "negative_music"}
+{"case_id": "neg_tv", "wav": "data/wav/neg_tv.wav", "dur_s": 3.0, "expect_event": null, "expect_alarm": false, "event_id": null, "cost_class": "neutral", "tag": "negative_tv"}
+{"case_id": "neg_silence", "wav": "data/wav/neg_silence.wav", "dur_s": 3.0, "expect_event": null, "expect_alarm": false, "event_id": null, "cost_class": "neutral", "tag": "long_silence"}

@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.cache/
+
+# 训练与转换产物（本地生成，不入库）
+runs/
+weights/
+*.pt
+*.onnx
+*.adla
+models/**
+!models/.gitkeep
+models/probe_onnx/
+
+# 合成音频：用 python/build_eval_set.py 重新生成，不入库
+data/wav/*.wav
+data/wav/*.pcm
+!data/wav/.gitkeep
+data/calib/
+data/record/
+
+# 板端构建产物
+cpp/build/
+cpp/install/
+audio_sentinel
+mel_dump
+*.o
+*.a
+
+# 大日志与逐帧明细
+bench/logs/*.jsonl
+bench/logs/*_raw.json
+bench/logs/c_mel*.txt
+
+# 编辑器与系统
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# 第三方库（头文件可入库，库与源码树不入库）
+third_party/*/lib/
+third_party/*/build/

@@ -1,0 +1,140 @@
+{
+  "target": {
+    "platform_id": "007",
+    "name": "A311Y3 / ADLA3"
+  },
+  "summary": {
+    "low": 9,
+    "medium": 5,
+    "high": 4
+  },
+  "ops": [
+    {
+      "op": "Conv2D",
+      "usage": "主干卷积",
+      "risk": "low",
+      "fallback": "—",
+      "in_audio_model": true
+    },
+    {
+      "op": "DepthwiseConv2D",
+      "usage": "BC-ResNet 的 separable conv",
+      "risk": "low",
+      "fallback": "—",
+      "in_audio_model": true
+    },
+    {
+      "op": "BatchNormalization",
+      "usage": "训练期算子",
+      "risk": "low",
+      "fallback": "推理前折叠进 Conv",
+      "in_audio_model": true
+    },
+    {
+      "op": "Relu / Relu6",
+      "usage": "激活",
+      "risk": "low",
+      "fallback": "—",
+      "in_audio_model": true
+    },
+    {
+      "op": "Sigmoid",
+      "usage": "注意力门控",
+      "risk": "low",
+      "fallback": "—",
+      "in_audio_model": true
+    },
+    {
+      "op": "AvgPool2D",
+      "usage": "时频下采样",
+      "risk": "low",
+      "fallback": "—",
+      "in_audio_model": true
+    },
+    {
+      "op": "GlobalAveragePool",
+      "usage": "分类头前池化",
+      "risk": "low",
+      "fallback": "改 AvgPool + Reshape",
+      "in_audio_model": true
+    },
+    {
+      "op": "Gemm / MatMul",
+      "usage": "全连接分类头",
+      "risk": "medium",
+      "fallback": "改 Conv2D 1x1",
+      "in_audio_model": true
+    },
+    {
+      "op": "Softmax",
+      "usage": "输出概率",
+      "risk": "low",
+      "fallback": "移出模型，CPU 侧做",
+      "in_audio_model": true
+    },
+    {
+      "op": "Concat / Add / Mul",
+      "usage": "残差与拼接",
+      "risk": "low",
+      "fallback": "—",
+      "in_audio_model": true
+    },
+    {
+      "op": "Conv1D",
+      "usage": "一维卷积音频模型常用",
+      "risk": "medium",
+      "fallback": "改 Conv2D(kernel=(1,k))",
+      "in_audio_model": true
+    },
+    {
+      "op": "Transpose",
+      "usage": "NCHW/NHWC 转换",
+      "risk": "medium",
+      "fallback": "固化进前后处理",
+      "in_audio_model": true
+    },
+    {
+      "op": "Resize / Upsample",
+      "usage": "UNet 类结构",
+      "risk": "medium",
+      "fallback": "换 stride-transpose",
+      "in_audio_model": true
+    },
+    {
+      "op": "Slice / Split",
+      "usage": "频谱裁剪",
+      "risk": "medium",
+      "fallback": "改成常量切片",
+      "in_audio_model": true
+    },
+    {
+      "op": "GRU",
+      "usage": "CRNN 时序建模",
+      "risk": "high",
+      "fallback": "放弃，改纯 CNN（BC-ResNet）",
+      "in_audio_model": true
+    },
+    {
+      "op": "LSTM",
+      "usage": "CRNN 时序建模",
+      "risk": "high",
+      "fallback": "放弃，改纯 CNN",
+      "in_audio_model": true
+    },
+    {
+      "op": "LRN",
+      "usage": "老式归一化",
+      "risk": "high",
+      "fallback": "换 BatchNorm",
+      "in_audio_model": true
+    },
+    {
+      "op": "STFT / MelFilterBank",
+      "usage": "把前端塞进模型",
+      "risk": "high",
+      "fallback": "前端留在 CPU/DSP，别进图",
+      "in_audio_model": true
+    }
+  ],
+  "decision": "高风险算子 4 个，全部集中在时序建模（GRU/LSTM）与图内前端（STFT/MelFilterBank）。因此模型选型锁定纯 CNN（BC-ResNet 系），前端留在 CPU/DSP 侧——这是被部署约束倒推出来的结构决策，不是精度妥协。"
+}
